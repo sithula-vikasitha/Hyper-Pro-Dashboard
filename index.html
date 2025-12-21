@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-site-verification" content="AioHky6gBYFTKoXFnESEp7ri323X5lvvZAtSQ48WSLM" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper Pro Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: #000; 
+            color: white; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- Background Video Style --- */
+        #bgVideo {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(45%); /* වීඩියෝ එක මදක් අඳුරු කර Cards කැපී පෙනීමට සලස්වා ඇත */
+        }
+
+        /* --- Login Overlay --- */
+        #loginOverlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.8); 
+            display: flex; justify-content: center; align-items: center; z-index: 1000; 
+            backdrop-filter: blur(10px);
+        }
+        .login-box { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 40px; border-radius: 20px; text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 320px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .login-box input { 
+            width: 100%; padding: 12px; margin-bottom: 20px; 
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px; color: white; font-size: 20px; text-align: center; outline: none;
+        }
+        .login-box button { 
+            background: linear-gradient(45deg, #3b82f6, #2dd4bf); 
+            color: white; border: none; padding: 12px; border-radius: 10px; 
+            cursor: pointer; font-weight: 600; width: 100%; transition: 0.3s;
+        }
+        .login-box button:hover { transform: scale(1.05); }
+
+        /* --- Main Content --- */
+        #mainContent { display: none; width: 90%; max-width: 1200px; padding: 40px 0; }
+        h1 { font-weight: 600; font-size: 2.5rem; margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+
+        .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        /* Glassmorphism Cards */
+        .card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px);
+            padding: 30px; border-radius: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center; transition: 0.4s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.1); border-color: #3b82f6; }
+        
+        .card h3 { margin-bottom: 20px; font-size: 1.3rem; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .button-group { display: flex; justify-content: center; gap: 12px; }
+        .open-btn { background: #3b82f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; flex: 3; font-size: 14px; transition: 0.3s; }
+        .open-btn:hover { background: #2563eb; }
+        .delete-btn { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px; border-radius: 10px; cursor: pointer; flex: 1; transition: 0.3s; }
+        .delete-btn:hover { background: #ef4444; color: white; }
+
+        /* Floating Add Button */
+        .add-btn { 
+            position: fixed; bottom: 40px; right: 40px; width: 65px; height: 65px; 
+            background: linear-gradient(45deg, #10b981, #34d399); 
+            color: white; border-radius: 50%; border: none; font-size: 35px; 
+            cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.4); display: none;
+            align-items: center; justify-content: center; transition: 0.3s;
+            z-index: 100;
+        }
+        .add-btn:hover { transform: rotate(90deg) scale(1.1); }
+
+        /* Modern Modal */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+        .modal-content { background: rgba(30, 41, 59, 0.9); margin: 12% auto; padding: 35px; width: 380px; border-radius: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.3); border: 1px solid #334155; border-radius: 10px; color: white; outline: none; }
+        .save-btn { background: #10b981; color: white; border: none; padding: 14px; cursor: pointer; border-radius: 10px; width: 100%; font-weight: 600; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop id="bgVideo">
+        <source src="background.mp4" type="video/mp4">
+    </video>
+
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="color: #3b82f6; margin-bottom: 5px;">HYPER PRO</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 25px;">Enter Access PIN</p>
+            <input type="password" id="passInput" placeholder="****">
+            <button id="loginBtn">Unlock System</button>
+            <p id="errorMsg" style="color: #f87171; display: none; margin-top: 15px; font-size: 13px;">Authentication Failed!</p>
+        </div>
+    </div>
+
+    <div id="mainContent">
+        <h1>Hyper Pro Dashboard</h1>
+        <div class="card-container" id="cardContainer"></div>
+    </div>
+
+    <button class="add-btn" id="openModal">+</button>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; color: #10b981;">Create New Shortcut</h3>
+            <input type="text" id="siteName" placeholder="Name (e.g. My Website)">
+            <input type="text" id="siteLink" placeholder="URL (e.g. google.com)">
+            <button class="save-btn" id="saveData">Add Card</button>
+            <button onclick="document.getElementById('myModal').style.display='none'" style="background:none; border:none; color:#94a3b8; cursor:pointer; margin-top:15px;">Dismiss</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBecNfEBSrQxurR3eYkZO5x8lStB-AojwE",
+            authDomain: "hyper-pro-login-form.firebaseapp.com",
+            projectId: "hyper-pro-login-form",
+            storageBucket: "hyper-pro-login-form.firebasestorage.app",
+            messagingSenderId: "133249816248",
+            appId: "1:133249816248:web:f5ab33986d44934626064d",
+            measurementId: "G-4QZ8Q3F7HH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const passInput = document.getElementById('passInput');
+        const loginOverlay = document.getElementById('loginOverlay');
+        const mainContent = document.getElementById('mainContent');
+        const addBtn = document.getElementById('openModal');
+        const modal = document.getElementById("myModal");
+        const saveDataBtn = document.getElementById("saveData");
+        const cardContainer = document.getElementById("cardContainer");
+
+        // Login Functionality
+        loginBtn.onclick = () => {
+            if (passInput.value === "1111") {
+                loginOverlay.style.transition = "0.5s";
+                loginOverlay.style.opacity = "0";
+                setTimeout(() => {
+                    loginOverlay.style.display = "none";
+                    mainContent.style.display = "block";
+                    addBtn.style.display = "flex";
+                    loadCards();
+                }, 500);
+            } else {
+                document.getElementById('errorMsg').style.display = "block";
+                passInput.value = "";
+                passInput.style.borderColor = "#f87171";
+            }
+        };
+
+        // Modal Control
+        addBtn.onclick = () => modal.style.display = "block";
+
+        // Save Data (No PIN required)
+        saveDataBtn.onclick = async () => {
+            const name = document.getElementById("siteName").value;
+            let link = document.getElementById("siteLink").value;
+            if (name && link) {
+                if (!link.startsWith('http')) link = 'https://' + link;
+                try {
+                    await addDoc(collection(db, "links"), { name, url: link });
+                    location.reload();
+                } catch (e) { alert("Error saving: " + e.message); }
+            } else {
+                alert("Please fill all fields!");
+            }
+        };
+
+        // Load Cards from Firebase
+        async function loadCards() {
+            cardContainer.innerHTML = "<p>Connecting to database...</p>";
+            const querySnapshot = await getDocs(collection(db, "links"));
+            cardContainer.innerHTML = "";
+            querySnapshot.forEach((documentObj) => {
+                const data = documentObj.data();
+                const docId = documentObj.id;
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <h3>${data.name}</h3>
+                    <div class="button-group">
+                        <a href="${data.url}" target="_blank" class="open-btn">Launch</a>
+                        <button class="delete-btn" onclick="deleteCard('${docId}')">✕</button>
+                    </div>
+                `;
+                cardContainer.appendChild(card);
+            });
+        }
+
+        // Delete Data (No PIN required)
+        window.deleteCard = async (id) => {
+            if(confirm("Are you sure you want to remove this card?")) {
+                await deleteDoc(doc(db, "links", id));
+                location.reload();
+            }
+        };
+    </script>
+</body>
+</html>
