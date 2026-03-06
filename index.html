@@ -28,7 +28,7 @@
             min-height: 100%;
             z-index: -1;
             object-fit: cover;
-            filter: brightness(45%); /* වීඩියෝ එක මදක් අඳුරු කර Cards කැපී පෙනීමට සලස්වා ඇත */
+            filter: brightness(45%);
         }
 
         /* --- Login Overlay --- */
@@ -59,7 +59,35 @@
 
         /* --- Main Content --- */
         #mainContent { display: none; width: 90%; max-width: 1200px; padding: 40px 0; }
-        h1 { font-weight: 600; font-size: 2.5rem; margin-bottom: 40px; text-align: center; letter-spacing: 2px; }
+        h1 { font-weight: 600; font-size: 2.5rem; margin-bottom: 30px; text-align: center; letter-spacing: 2px; }
+
+        /* --- Search Bar Style --- */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        #searchInput {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 25px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+        }
+        #searchInput::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        #searchInput:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
 
         .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         
@@ -118,6 +146,12 @@
 
     <div id="mainContent">
         <h1>Hyper Pro Dashboard</h1>
+        
+        <!-- අලුතින් එකතු කරපු Search Bar එක -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by name...">
+        </div>
+
         <div class="card-container" id="cardContainer"></div>
     </div>
 
@@ -160,6 +194,7 @@
         const modal = document.getElementById("myModal");
         const saveDataBtn = document.getElementById("saveData");
         const cardContainer = document.getElementById("cardContainer");
+        const searchInput = document.getElementById("searchInput"); // අලුත් Search variable එක
 
         // Login Functionality
         loginBtn.onclick = () => {
@@ -182,7 +217,7 @@
         // Modal Control
         addBtn.onclick = () => modal.style.display = "block";
 
-        // Save Data (No PIN required)
+        // Save Data 
         saveDataBtn.onclick = async () => {
             const name = document.getElementById("siteName").value;
             let link = document.getElementById("siteLink").value;
@@ -218,13 +253,29 @@
             });
         }
 
-        // Delete Data (No PIN required)
+        // Delete Data 
         window.deleteCard = async (id) => {
             if(confirm("Are you sure you want to remove this card?")) {
                 await deleteDoc(doc(db, "links", id));
                 location.reload();
             }
         };
+
+        // අලුතින් එකතු කරපු Search Function එක
+        searchInput.addEventListener("keyup", (e) => {
+            const searchValue = e.target.value.toLowerCase();
+            const allCards = document.querySelectorAll(".card"); // සියලුම cards තෝරාගන්නවා
+
+            allCards.forEach(card => {
+                const cardName = card.querySelector("h3").innerText.toLowerCase(); // h3 tag එක ඇතුලෙ තියෙන නම
+                if(cardName.includes(searchValue)) {
+                    card.style.display = ""; // නම තියෙනවා නම් පේන්න සලස්වනවා (css grid default)
+                } else {
+                    card.style.display = "none"; // නැත්තම් card එක හංගනවා
+                }
+            });
+        });
+        
     </script>
 </body>
 </html>
